@@ -71,7 +71,7 @@ def handle_text(event):
             else:
                 line_bot_api.reply_message(event.reply_token, TextSendMessage(text="⚠️ 請直接回覆「內場」或「外場」來確認您的區域。"))
                 return
-            state["target"] = (19 if state["area"] == "外場" else 28) if state["branch"] == "潮州店" else (12 if state["area"] == "外場" else 11)
+            state["target"] = (19 if state["area"] == "外場" else 14) if state["branch"] == "潮州店" else (12 if state["area"] == "外場" else 11)
             state["step"] = "uploading"
             reply_msg = f"✅ 已強制設定完畢！\n💡 小提醒：下次傳送前請先和夥伴確認好區域，才不會重複做白工喔！\n\n分店：{state['branch']}\n姓名：{state['name']}\n區域：{state['area']}\n\n請直接在聊天室一次選取並傳送 {state['target']} 張照片。"
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_msg))
@@ -93,7 +93,7 @@ def handle_text(event):
                 return
             else:
                 state["branch"] = branch_choice
-                state["target"] = (19 if state["area"] == "外場" else 28) if state["branch"] == "潮州店" else (12 if state["area"] == "外場" else 11)
+                state["target"] = (19 if state["area"] == "外場" else 14) if state["branch"] == "潮州店" else (12 if state["area"] == "外場" else 11)
                 state["step"] = "uploading"
                 line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"✅ 已設定完畢！\n分店：{state['branch']}\n姓名：{state['name']}\n區域：{state['area']}\n\n請直接在聊天室一次選取並傳送 {state['target']} 張照片。\n\n💡 傳送完畢後，系統會自動為您清點數量。"))
                 return
