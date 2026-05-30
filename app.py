@@ -170,7 +170,7 @@ def handle_image(event):
                 line_bot_api.reply_message(event.reply_token, TextSendMessage(text=reply_msg))
                 del user_states[user_id] 
             else:
-                t = Timer(2.0, check_upload_status, args=[user_id, event.reply_token])
+                t = Timer(5.0, check_upload_status, args=[user_id, event.reply_token])
                 state['timer'] = t
                 t.start()
 
