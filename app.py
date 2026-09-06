@@ -233,9 +233,9 @@ def handle_text(event):
             and user_states[user_id].get("step") == "confirming_duplicate_area"
         ):
             state = user_states[user_id]
-            if "內場" in raw_text:
+            if raw_text == "內場":
                 state["area"] = "內場"
-            elif "外場" in raw_text:
+            elif raw_text == "外場":
                 state["area"] = "外場"
             else:
                 reply_text(event.reply_token, "⚠️ 請直接回覆「內場」或「外場」來確認您的區域。")
@@ -259,11 +259,12 @@ def handle_text(event):
 
         if user_id in user_states and user_states[user_id].get("step") == "waiting_for_branch":
             state = user_states[user_id]
-            branch_choice = (
-                "潮州店"
-                if "1" in raw_text or "１" in raw_text
-                else ("內埔店" if "2" in raw_text or "２" in raw_text else "")
-            )
+            branch_choice = {
+                "1": "潮州店",
+                "１": "潮州店",
+                "2": "內埔店",
+                "２": "內埔店",
+            }.get(raw_text, "")
             if not branch_choice:
                 reply_text(event.reply_token, "⚠️ 請輸入有效的數字：\n1. 潮州店\n2. 內埔店")
                 return
@@ -303,10 +304,9 @@ def handle_text(event):
             )
             return
 
-        if "設定" in raw_text:
-            clean_text = raw_text[raw_text.find("設定") :]
-            parts = clean_text.split()
-            if len(parts) >= 3:
+        parts = raw_text.split()
+        if parts and parts[0] == "設定":
+            if len(parts) == 3:
                 name, area = parts[1], parts[2]
                 if area not in ["外場", "內場"]:
                     reply_text(event.reply_token, "⚠️ 區域請填寫「外場」或「內場」")
@@ -336,7 +336,9 @@ def handle_text(event):
                 reply_text(event.reply_token, "⚠️ 格式錯誤。\n請輸入例如： 設定 王小明 外場")
             return
 
-        if "結算" in raw_text or "完成" in raw_text:
+        # 只有完整的「結算」或「完成」指令才觸發，避免一般聊天中出現
+        # 「完成任務」等字樣時誤回覆「沒有正在進行的上傳任務」。
+        if raw_text in {"結算", "完成"}:
             if user_id in user_states and user_states[user_id].get("step") == "uploading":
                 state = user_states[user_id]
                 if state["count"] < state["target"]:
