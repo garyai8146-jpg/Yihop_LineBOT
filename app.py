@@ -45,6 +45,20 @@ def get_group_id(event):
     return getattr(event.source, "group_id", None)
 
 
+def get_upload_target(branch, area):
+    """回傳各分店/區域應上傳的照片數量。"""
+    if branch == "潮州店":
+        return 27 if area == "外場" else 14
+    return 12 if area == "外場" else 11
+
+
+def get_upload_note(branch, area):
+    """回傳任務特殊提醒；沒有特殊項目時保持空白。"""
+    if branch == "潮州店" and area == "外場":
+        return "\n\n📌 本次外場新增 1 張：可樂機濾嘴確認照。"
+    return ""
+
+
 def extract_bridge_reply(data):
     """相容後端常見回傳欄位，最後仍保留可讀錯誤訊息。"""
     if isinstance(data, str):
@@ -238,13 +252,9 @@ def handle_text(event):
             elif raw_text == "外場":
                 state["area"] = "外場"
             else:
-                reply_text(event.reply_token, "⚠️ 請直接回覆「內場」或「外場」來確認您的區域。")
+                # 狀態存在時也只接受精確回覆；其他群組聊天保持安靜。
                 return
-            state["target"] = (
-                (24 if state["area"] == "外場" else 14)
-                if state["branch"] == "潮州店"
-                else (12 if state["area"] == "外場" else 11)
-            )
+            state["target"] = get_upload_target(state["branch"], state["area"])
             state["step"] = "uploading"
             reply_msg = (
                 "✅ 已強制設定完畢！\n"
@@ -253,6 +263,7 @@ def handle_text(event):
                 f"姓名：{state['name']}\n"
                 f"區域：{state['area']}\n\n"
                 f"請直接在聊天室一次選取並傳送 {state['target']} 張照片。"
+                f"{get_upload_note(state['branch'], state['area'])}"
             )
             reply_text(event.reply_token, reply_msg)
             return
@@ -266,7 +277,7 @@ def handle_text(event):
                 "２": "內埔店",
             }.get(raw_text, "")
             if not branch_choice:
-                reply_text(event.reply_token, "⚠️ 請輸入有效的數字：\n1. 潮州店\n2. 內埔店")
+                # 避免曾開啟設定但未完成時，之後一般聊天一直觸發 Bot。
                 return
             today_str = datetime.now().strftime("%Y-%m-%d")
             already_done_by = (
@@ -287,11 +298,7 @@ def handle_text(event):
                 return
 
             state["branch"] = branch_choice
-            state["target"] = (
-                (24 if state["area"] == "外場" else 14)
-                if state["branch"] == "潮州店"
-                else (12 if state["area"] == "外場" else 11)
-            )
+            state["target"] = get_upload_target(state["branch"], state["area"])
             state["step"] = "uploading"
             reply_text(
                 event.reply_token,
@@ -299,7 +306,8 @@ def handle_text(event):
                 f"分店：{state['branch']}\n"
                 f"姓名：{state['name']}\n"
                 f"區域：{state['area']}\n\n"
-                f"請直接在聊天室一次選取並傳送 {state['target']} 張照片。\n\n"
+                f"請直接在聊天室一次選取並傳送 {state['target']} 張照片。"
+                f"{get_upload_note(state['branch'], state['area'])}\n\n"
                 "💡 傳送完畢後，系統會自動為您清點數量。",
             )
             return
@@ -339,18 +347,17 @@ def handle_text(event):
         # 只有完整的「結算」或「完成」指令才觸發，避免一般聊天中出現
         # 「完成任務」等字樣時誤回覆「沒有正在進行的上傳任務」。
         if raw_text in {"結算", "完成"}:
-            if user_id in user_states and user_states[user_id].get("step") == "uploading":
-                state = user_states[user_id]
-                if state["count"] < state["target"]:
-                    reply_text(
-                        event.reply_token,
-                        f"📊 【進度回報】\n目前已成功傳送：{state['count']} 張\n"
-                        f"⚠️ 還缺少：{state['target'] - state['count']} 張！",
-                    )
-                else:
-                    reply_text(event.reply_token, "✅ 您已全數傳送完畢，無需再補傳！")
+            if user_id not in user_states or user_states[user_id].get("step") != "uploading":
+                return
+            state = user_states[user_id]
+            if state["count"] < state["target"]:
+                reply_text(
+                    event.reply_token,
+                    f"📊 【進度回報】\n目前已成功傳送：{state['count']} 張\n"
+                    f"⚠️ 還缺少：{state['target'] - state['count']} 張！",
+                )
             else:
-                reply_text(event.reply_token, "⚠️ 您目前沒有正在進行的上傳任務。")
+                reply_text(event.reply_token, "✅ 您已全數傳送完畢，無需再補傳！")
 
 
 # ▲▲▲MAIN_CODE_END▲▲▲
