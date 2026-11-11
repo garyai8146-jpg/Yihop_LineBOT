@@ -1,0 +1,29 @@
+name: LINE Bot source checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile source
+        run: python -m py_compile app.py
+      - name: Check webhook secret handling
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('app.py').read_text(encoding='utf-8')
+          assert 'os.environ.get("LINE_CHANNEL_ACCESS_TOKEN")' in s
+          assert 'os.environ.get("LINE_CHANNEL_SECRET")' in s
+          assert 'X-Line-Signature' in s
+          assert 'handler.handle(body, signature)' in s
+          assert 'InvalidSignatureError' in s
+          print("Source contains the expected environment-based token and signature checks.")
+          PY
