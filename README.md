@@ -1,48 +1,40 @@
-# 餐廳清潔 SOP LINE Bot｜Closing Checklist Automation
+# Yihop LINE Bot｜門市清潔 SOP 與排班系統整合
 
-> 透過員工熟悉的 LINE 對話介面，協助門市進行清潔照片回報、進度計數與缺漏提醒。
+> 以 LINE Webhook 接收門市清潔照片與文字操作，保留每日回報進度；程式亦包含與獨立排班 API 的橋接指令。
 
-## 為什麼做
+**[查看 GitHub 面試作品導覽](https://github.com/garyai8146-jpg/Yihop_LineBOT/blob/main/PORTFOLIO.md)**
 
-門市每日清潔查核需要反覆追問「哪個區域還沒交照片？」；只靠群組訊息容易漏掉回報。這個專案把清潔流程轉成 LINE Bot 的引導式對話，讓回報步驟與狀態更容易追蹤。
-
-## 核心流程
+## 用途與流程
 
 ```text
-LINE 清潔回報
-    → Webhook 驗章與事件解析
-    → 文字指令／任務狀態處理
-    → 取得照片位元內容
-    → MD5 重複檔案檢查
-    → 更新張數與待補項目
-    → LINE 訊息回覆
+LINE 訊息／清潔照片
+    → Flask Webhook、LINE 簽章驗證
+    → 文字指令／多輪狀態
+    ├─ 影像內容 MD5 去重與張數累計
+    └─ 授權的排班 API 橋接請求
+    → 回覆 LINE 使用者
 ```
 
-## 工程設計
+## 工程重點
 
-- **Webhook 整合：** Flask 搭配 LINE Messaging API SDK，處理門市人員的互動事件。
-- **多輪任務狀態：** 透過記憶體中的任務狀態保存回報進度，降低操作步驟。
-- **重複檔案偵測：** 計算影像內容雜湊，對完全相同位元內容的重複提交提出提醒。
-- **併發保護：** 以 `threading.Lock` 控制共享狀態的部分修改，減少多筆回報同時進入時的衝突。
-- **圖片處理取捨：** 不必把全部照片長期儲存在應用伺服器上，但仍需遵守 LINE 與營運端的資料保留規範。
+- **Webhook：** Flask + LINE Messaging API SDK 解析訊息事件並驗證來源。
+- **照片：** 以 MD5 判斷位元內容相同的照片；無法偵測重新拍攝、修改壓縮過的相似照片。
+- **多人操作：** 運用記憶體字典及部分 Lock 保護狀態；進程重啟、水平擴充與資料稽核仍需持久層。
+- **排班橋接：** 透過 `SCHEDULE_API_URL` 與 `LINE_BRIDGE_API_KEY` 呼叫外部排班後端；實際權限應由後端驗證，不能單靠 LINE 文字辨識。
 
-## 技術棧
+## 本機開發
 
-Python · Flask · LINE Messaging API · threading · hashlib · Render（部署選項）
-
-## 執行與設定
-
-```bash
+```powershell
 python -m pip install -r requirements.txt
 python app.py
 ```
 
-使用前需於環境變數設定 LINE Channel Secret、Channel Access Token 等設定，並在 LINE Developers 登記 HTTPS Webhook。**絕對不要提交 Token、門市照片或真實員工個資。**
+需要環境變數 `LINE_CHANNEL_ACCESS_TOKEN`、`LINE_CHANNEL_SECRET`，排班橋接另需 `SCHEDULE_API_URL` 和 `LINE_BRIDGE_API_KEY`。再於 LINE Developers 綁定有 HTTPS 的 Webhook。
 
-## 面試可以談什麼
+## 安全與限制
 
-LINE Webhook 事件模型、如何設計對話狀態機、圖片重複判定與記憶體／資料庫取捨、多人同時操作的競態問題，以及現場 SOP 數位化。
+此倉庫是流程整合原型，沒有可公開重現的完整營運端到端測試。不得提交 Channel Token、API 金鑰、使用者 ID、私人對話或門市照片。正式多店部署需要持久化紀錄、身分與群組授權、Webhook 重送的冪等性，以及競態測試。
 
-## 已知限制與下一步
+## 面試展示
 
-MD5 比對只適合偵測位元內容相同的照片，不等於辨識是否使用舊照片、重新拍攝或修改後重傳。純記憶體狀態在服務重啟、水平擴充時也有持久性限制；若導入多店正式營運，應增加持久化、稽核及權限設計。
+可從 LINE Webhook 的事件模型、共享狀態與鎖的限制、外部系統串接、資料重送與驗章等方面講解設計取捨。
