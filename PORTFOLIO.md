@@ -1,28 +1,66 @@
-# GitHub 面試作品導覽｜garyai8146-jpg
+# 我的 GitHub 作品集
 
-> **面試精選：** 從實體門市、工廠到桌面工具，將現場流程轉成可操作的軟體。以下只列出**已公開**的儲存庫；私人客戶系統、營運資料與憑證不在公開導覽範圍內。
+你好！這裡放的是我把生活和工作現場遇到的麻煩，慢慢整理成軟體工具的紀錄。
 
-## 建議優先看這 4 件作品
+我比較喜歡做「真的有人會用到」的東西。像是門市每天要算的叫貨量、打烊後一堆照片要整理、工廠掃碼驗單，這些看起來不起眼的流程，其實有很多地方可以靠程式減少重複操作。
 
-| 專案 | 核心問題與工程要點 | 技術 |
-| --- | --- | --- |
-| [Yihop｜火鍋店智能營運系統](https://github.com/garyai8146-jpg/Yihop) | 叫貨、庫存與農曆／氣候加成；資料追加寫入、去重與外部 API 整合 | Python、Streamlit、Google Sheets |
-| [Yihop_LineBOT｜門市 SOP LINE Bot](https://github.com/garyai8146-jpg/Yihop_LineBOT) | 照片回報、進度追蹤、Webhook、共享狀態與事件處理 | Python、Flask、LINE Messaging API |
-| [newyunxi｜驗單打包助手](https://github.com/garyai8146-jpg/newyunxi) | XML 匯入、重量計算、分包策略、掃碼與現場操作流程 | Python、Tkinter、XML |
-| [jepo｜清潔照上傳系統](https://github.com/garyai8146-jpg/jepo) | 批次照片壓縮、去重、Google Drive 上傳與資料夾整理 | Python、Streamlit、Google Drive API |
+如果你是第一次來看，**先從下面四個作品開始就好**。
 
-## 其他公開作品
+## 我最想分享的四個作品
 
-- [kvs-to-mp3](https://github.com/garyai8146-jpg/kvs-to-mp3)：Windows 桌面轉檔 GUI，串接 vgmstream 與 FFmpeg。
-- [yihop-lottery-app](https://github.com/garyai8146-jpg/yihop-lottery-app)：Streamlit 門市抽獎互動原型，具有庫存與紀錄邏輯；**管理端尚未完成可公開部署的身分驗證，僅建議本機展示**。
-- [Dark Sleep（目前儲存庫名稱為「-」）](https://github.com/garyai8146-jpg/-)：Android 環境光與閒置條件休眠工具；正式展示前建議重新命名儲存庫，移除追蹤的 Debug 簽署素材與 APK 編譯產物。
+### 01｜[Yihop — 火鍋店備貨與叫貨工作台](https://github.com/garyai8146-jpg/Yihop)
 
-## 面試講解順序
+門市叫貨常常不是「缺多少就補多少」這麼簡單。碰到下雨、低溫、農曆特殊日期，或是廠商明天休息，今天的備料就可能要重新安排。
 
-建議每件作品以 **現場問題 → 系統流程 → 關鍵技術決策 → 已實現範圍 → 限制與下一步** 的順序講解。能確實示範的功能才稱作已驗收；README 所描述的設計與既有測試，並不代表全部已通過真實營運驗證。
+我把天氣、農曆、供貨日和叫貨紀錄整合在同一個畫面，讓店員核對數量時少一點來回切表格的時間。
 
-## 作品安全原則
+**可以聊的技術：** Python、Streamlit、Google Sheets API、氣象資料與日期規則；也包含多人填寫時，為什麼使用追加紀錄而不是整張表覆寫的設計取捨。
 
-請勿在公開畫面展示真實客戶名單、門市訂單、LINE Channel Token、Google 服務帳戶、金鑰或個人資料。以匿名或測試資料展示；只開放已完成安全檢查的程式碼。
+### 02｜[newyunxi — 工廠驗單打包助手](https://github.com/garyai8146-jpg/newyunxi)
 
-*整理日期：2026-11-11。這是展示索引，不是上線品質或安全性保證。*
+工廠現場要對照訂單、確認板材數量，再依重量分包。資料格式和掃碼設備都不是自己能隨意決定的，所以工具必須配合既有流程。
+
+這個 Windows 程式能讀取 XML 訂單、估算板件重量、提出分包建議，並配合掃描槍提示作業狀態。
+
+**可以聊的技術：** Python、Tkinter、XML、重量估算、貪婪式分包，以及如何讓程式接上現場既有設備。
+
+### 03｜[Yihop_LineBOT — LINE 清潔回報小幫手](https://github.com/garyai8146-jpg/Yihop_LineBOT)
+
+群組裡一直有人傳照片，不代表大家能一眼看出哪些區域已完成、哪些還沒交。
+
+我用 LINE Bot 接收清潔回報、計算照片數量與進度，也串接獨立的排班系統 API，讓原本在聊天訊息裡很難追蹤的工作變成有狀態的流程。
+
+**可以聊的技術：** Flask、LINE Webhook、訊息驗證、照片雜湊、多人同時操作與資料持久化的取捨。
+
+### 04｜[jepo — 打烊清潔照片上傳工具](https://github.com/garyai8146-jpg/jepo)
+
+清潔照拍完之後，最花時間的不一定是拍照，而是選檔、分類、確認重複、上傳到對的雲端資料夾。
+
+這個小工具把多張圖片壓縮、內容重複比對和 Google Drive 批次上傳放在同一個操作畫面。
+
+**可以聊的技術：** Streamlit、Pillow、MD5、Google Drive API 與 ThreadPoolExecutor。
+
+## 另外一個小工具
+
+### [KVS to MP3 — Windows 音訊批次轉檔](https://github.com/garyai8146-jpg/kvs-to-mp3)
+
+為了省去一個個手動操作轉檔命令的過程，我用 Tkinter 做了桌面介面，把 vgmstream 和 FFmpeg 串成一條批次處理流程。這個作品比較小，但很適合談背景工作、主執行緒更新畫面、暫存檔與錯誤處理。
+
+## 我做專案時在意的事
+
+我希望做出來的工具，不只是截圖看起來能用：
+
+- **先弄懂現場卡在哪裡。** 不是一開始就決定要用什麼框架。
+- **盡量讓操作簡單。** 使用者有時是店員，有時是工廠現場人員，不一定熟悉程式。
+- **承認原型的限制。** 像 Google Sheets 不是完整交易型資料庫，MD5 也不能辨識兩張看起來相似的照片。
+- **把測試與安全補上。** 能自動化驗證的先驗證；涉及實際帳號、客戶資料與金鑰的內容不放到公開作品裡。
+
+## 面試時可以怎麼看
+
+時間不多的話，推薦依序看 **Yihop → newyunxi → Yihop_LineBOT**。三個作品分別代表資料流程整合、桌面／現場工具、以及外部 API 與訊息事件處理。
+
+這些儲存庫提供的是程式碼與設計紀錄；需要私人 API、Google Sheets 或實機設備的功能，會在各專案 README 中說明執行條件。沒有附上真實客戶營運資料，也不把尚未做完的功能寫成已經通過驗收。
+
+---
+
+*更新：2026-11-11 · 其他仍在調整或不適合公開展示的專案，暫不放進這份精選作品集。*
